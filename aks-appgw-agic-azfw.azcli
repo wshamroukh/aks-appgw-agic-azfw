@@ -165,6 +165,11 @@ az network firewall update -n $azfw_name -g $rg -o none
 hub_fw_private_ip=$(az network firewall show -g $rg -n $azfw_name --query ipConfigurations[].privateIpAddress -o tsv)
 hub_fw_public_ip=$(az network public-ip show -g $rg -n $azfw_name-pubip --query ipAddress -o tsv)
 
+#Deploy Azure Monitor Workbook for Azure Firewall
+echo -e "\e[1;36mDeploying Azure Monitor Workbook for Azure Firewall....\e[0m"
+guid=$(curl -s https://www.uuidgenerator.net/api/version1)
+templateUri="https://raw.githubusercontent.com/Azure/Azure-Network-Security/master/Azure%20Firewall/Workbook%20-%20Azure%20Firewall%20Monitor%20Workbook/Azure%20Firewall_ARM.json"
+az group deployment create -g $rg -n deployAzMonitorForFW --template-uri $templateUri -p "workbookDisplayName=$azfw_name-workbook" 'workbookType=workbook' "workbookSourceId=$log_analytics_ws_id" "workbookId=$guid" -o none
 
 # aks route table
 echo -e "\e[1;36mCreating Route table and attach to AKS system....\e[0m"
